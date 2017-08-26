@@ -29,7 +29,7 @@ http.createServer(function (req, res) {
         res.end('{"code":1,"msg":"mode参数只能为java或者node."}')
         return;
     }
-    if(password==req.headers['x-gitlab-token']){
+    if(password.trim()==req.headers['x-gitlab-token'].trim()){
         req.headers['mode'] = mode;
         handler(req, res, function (err) {
            res.statusCode = 404
