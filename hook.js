@@ -1,8 +1,8 @@
 var http = require('http')
 var createHandler = require('gitlab-webhook-handler')
 var handler = createHandler({ path: '/webhook' })
+var cmd = require('node-cmd');
 var fs = require('fs')
-
 function getQueryString(url,name) {
     var theRequest = new Object();
     if (url.indexOf("?") != -1) {
@@ -13,19 +13,6 @@ function getQueryString(url,name) {
         }
     }
     return theRequest;
-}
-
-function run_cmd(cmd, args, callback) {
-    var spawn = require('child_process').spawn;
-    var child = spawn(cmd, args);
-    var resp = "";
-
-    child.stdout.on('data', function (buffer) {
-        resp += buffer.toString();
-    });
-    child.stdout.on('end', function () {
-        callback(resp)
-    });
 }
 
 http.createServer(function (req, res) {
@@ -40,6 +27,7 @@ http.createServer(function (req, res) {
             return console.log(err);
         }
         if(data==req.headers['x-gitlab-token']){
+            req.headers['mode'] = mode;
             handler(req, res, function (err) {
                 res.statusCode = 404
                 res.end('没有这个地扯')
@@ -59,13 +47,12 @@ handler.on('error', function (err) {
 })
 
 handler.on('push', function (event) {
-    console.log('Received a push event for %s to %s',
-        event.payload.repository.name,
-        event.payload.ref)
-
-    run_cmd('sh', ['./test.sh', event.payload.repository.name], function (text) {
-        console.log(text)
-    });
+    cmd.get('/root/issp/docker/'+event.mode+'/run.sh',function (err,data,stderr) {
+        console.log(data)
+        if(stderr){
+            console.log(stderr)
+        }
+    })
 })
 
 handler.on('issues', function (event) {
