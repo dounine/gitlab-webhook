@@ -31,8 +31,8 @@ function run_cmd(cmd, args, callback) {
 http.createServer(function (req, res) {
     var mode = getQueryString(req.url,'mode')['webhook?mode'];
     if(mode!='node'&&mode!='java'){
-        res.writeHead(400, { 'content-type': 'application/json' })
-        res.end('{"code":400,"msg":"mode参数只能为java或者node."}')
+        res.writeHead(200, { 'content-type': 'application/json' })
+        res.end('{"code":1,"msg":"mode参数只能为java或者node."}')
         return;
     }
     fs.readFile('./password.txt', 'utf8', function (err,data) {
@@ -45,8 +45,8 @@ http.createServer(function (req, res) {
                 res.end('没有这个地扯')
             })
         }else{
-            res.writeHead(400, { 'content-type': 'application/json' })
-            res.end('{"code":400,"msg":"密码错误."}')
+            res.writeHead(200, { 'content-type': 'application/json' })
+            res.end('{"code":1,"msg":"密码错误."}')
         }
     })
 
