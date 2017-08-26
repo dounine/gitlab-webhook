@@ -3,6 +3,13 @@ var createHandler = require('gitlab-webhook-handler')
 var handler = createHandler({ path: '/webhook' })
 var cmd = require('node-cmd');
 var fs = require('fs')
+var password = ''
+fs.readFile('/root/issp/gitlab-webhook/password.txt', 'utf8', function (err,data) {
+        if (err) {
+            return console.log(err);
+        }
+	password = data;
+    })
 function getQueryString(url,name) {
     var theRequest = new Object();
     if (url.indexOf("?") != -1) {
@@ -22,21 +29,16 @@ http.createServer(function (req, res) {
         res.end('{"code":1,"msg":"mode参数只能为java或者node."}')
         return;
     }
-    fs.readFile('./password.txt', 'utf8', function (err,data) {
-        if (err) {
-            return console.log(err);
-        }
-        if(data==req.headers['x-gitlab-token']){
-            req.headers['mode'] = mode;
-            handler(req, res, function (err) {
-                res.statusCode = 404
-                res.end('没有这个地扯')
-            })
-        }else{
-            res.writeHead(200, { 'content-type': 'application/json' })
-            res.end('{"code":1,"msg":"密码错误."}')
-        }
-    })
+    if(password==req.headers['x-gitlab-token']){
+        req.headers['mode'] = mode;
+        handler(req, res, function (err) {
+           res.statusCode = 404
+           res.end('没有这个地扯')
+        })
+    }else{
+        res.writeHead(200, { 'content-type': 'application/json' })
+        res.end('{"code":1,"msg":"密码错误."}')
+    }
 
 }).listen(7777);
 
