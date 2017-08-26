@@ -49,11 +49,10 @@ handler.on('error', function (err) {
 })
 
 handler.on('push', function (event) {
-    cmd.get('cd / ; /root/issp/docker/'+event.mode+'/run.sh',function (err,data,stderr) {
+        console.log('event push')
+    cmd.get('/root/issp/docker/'+event.mode+'/run.sh',function (err,data,stderr) {
         console.log(data)
-        if(stderr){
-            console.log(stderr)
-        }
+        console.log(stderr)
     })
 })
 
