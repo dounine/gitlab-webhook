@@ -2,16 +2,15 @@
   "name": "gitlab-webhook",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "hook.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node hook.js",
     "back": "./node_modules/forever/bin/forever start index.js"
   },
-  "author": "",
+  "author": "lake",
   "license": "ISC",
   "dependencies": {
-    "child_process": "^1.0.2",
     "forever": "^0.15.3",
     "gitlab-webhook-handler": "^1.0.1",
     "node-cmd": "^3.0.0"
