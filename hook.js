@@ -7,8 +7,9 @@ var password = ''
 fs.readFile('/root/issp/gitlab-webhook/password.txt', 'utf8', function (err,data) {
         if (err) {
             return console.log(err);
-        }
-	password = data;
+        }else{
+	    password = data;
+	}
     })
 function getQueryString(url,name) {
     var theRequest = new Object();
@@ -24,9 +25,11 @@ function getQueryString(url,name) {
 
 http.createServer(function (req, res) {
     var mode = getQueryString(req.url,'mode')['webhook?mode'];
+    console.log('mode:'+mode)
     if(mode!='node'&&mode!='java'){
         res.writeHead(200, { 'content-type': 'application/json' })
         res.end('{"code":1,"msg":"mode参数只能为java或者node."}')
+	console.log('{"code":1,"msg":"mode参数只能为java或者node."}')
         return;
     }
     if(password.trim()==req.headers['x-gitlab-token'].trim()){
@@ -34,10 +37,12 @@ http.createServer(function (req, res) {
         handler(req, res, function (err) {
            res.statusCode = 404
            res.end('没有这个地扯')
+	   console.log('没有这个地扯')
         })
     }else{
         res.writeHead(200, { 'content-type': 'application/json' })
         res.end('{"code":1,"msg":"密码错误."}')
+	console.log('{"code":1,"msg":"密码错误."}')
     }
 
 }).listen(7777);
@@ -45,14 +50,16 @@ http.createServer(function (req, res) {
 console.log("Gitlab Hook Server running at http://0.0.0.0:7777/webhook");
 
 handler.on('error', function (err) {
-    console.error('Error:', err.message)
+    console.error('错误:', err.message)
 })
 
 handler.on('push', function (event) {
-        console.log('event push')
+    console.log('event push')
     cmd.get('/root/issp/docker/'+event.mode+'/run.sh',function (err,data,stderr) {
         console.log(data)
-        console.log(stderr)
+	if(stderr){
+        	console.log("脚本错误:"+stderr)
+	}
     })
 })
 
