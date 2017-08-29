@@ -29,11 +29,19 @@ function getQueryString(url, name) {
 http.createServer(function (req, res) {
     var mode = getQueryString(req.url, 'mode')['webhook?mode'];
     console.log('mode:' + mode)
+    if (mode == undefined || (mode != undefined && mode == "")) {
+        res.writeHead(200, {'content-type': 'application/json'})
+        var msg = '{"code":1,"msg":"mode参数不能为空."}'
+        console.log(msg)
+        res.end(msg)
+        return;
+    }
+
     if (mode != 'node' && mode != 'java') {
         res.writeHead(200, {'content-type': 'application/json'})
         var msg = '{"code":1,"msg":"mode参数只能为java或者node."}'
-        res.end(msg)
         console.log(msg)
+        res.end(msg)
         return;
     }
     if (password.trim() == req.headers['x-gitlab-token']) {
