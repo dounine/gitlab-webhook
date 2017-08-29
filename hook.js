@@ -6,7 +6,7 @@ var fs = require('fs')
 var password = 'abc123'
 var port = 7777
 
-fs.readFile('/root/issp/gitlab-webhook/password.txt', 'utf8', function (err, data) {
+fs.readFile('/home/lake/github/gitlab-webhook/password.txt', 'utf8', function (err, data) {
     if (err) {
         return console.log(err);
     } else {
@@ -36,7 +36,7 @@ http.createServer(function (req, res) {
         console.log(msg)
         return;
     }
-    if (password.trim() == req.headers['x-gitlab-token'].trim()) {
+    if (password.trim() == req.headers['x-gitlab-token']) {
         req.headers['mode'] = mode;
         handler(req, res, function (err) {
             res.writeHead(200, {'content-type': 'application/json'})
@@ -62,6 +62,7 @@ handler.on('error', function (err) {
 
 handler.on('push', function (event) {
     console.log('event push')
+    console.log(event.payload.repository.name)
     cmd.get('/root/issp/docker/' + event.mode + '/run.sh', function (err, data, stderr) {
         console.log(data)
         if (stderr) {
