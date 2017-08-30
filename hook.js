@@ -6,7 +6,7 @@ var fs = require('fs')
 var password = 'abc123'
 var port = 7777
 
-fs.readFile('/home/lake/github/gitlab-webhook/password.txt', 'utf8', function (err, data) {
+fs.readFile('/root/issp/gitlab-webhook/password.txt', 'utf8', function (err, data) {
     if (err) {
         return console.log(err);
     } else {
