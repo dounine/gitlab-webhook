@@ -71,7 +71,7 @@ handler.on('error', function (err) {
 handler.on('push', function (event) {
     console.log('event push')
     console.log(event.payload.repository.name)
-    cmd.get('/root/issp/docker/' + event.mode + '/run.sh', function (err, data, stderr) {
+    cmd.get('/root/issp/docker/' + event.mode + '/run.sh webhook', function (err, data, stderr) {
         console.log(data)
         if (stderr) {
             console.log("脚本错误:" + stderr)
