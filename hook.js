@@ -1,18 +1,24 @@
 var http = require('http')
 var createHandler = require('gitlab-webhook-handler')
+const bl = require('bl')
 var handler = createHandler({path: '/webhook'})
 var cmd = require('node-cmd');
 var fs = require('fs')
 var password = 'abc123'
-var port = 7777
+var port = process.env.PORT || 7777
 
-fs.readFile('/root/issp/gitlab-webhook/password.txt', 'utf8', function (err, data) {
+fs.readFile(__dirname+'/password.txt', 'utf8', function (err, data) {
     if (err) {
         return console.log(err);
     } else {
         password = data;
     }
 })
+
+function hasError (msg,res) {
+    res.writeHead(400, { 'content-type': 'application/json' })
+    res.end(JSON.stringify({ error: msg }))
+}
 
 function getQueryString(url, name) {
     var theRequest = new Object();
@@ -26,9 +32,26 @@ function getQueryString(url, name) {
     return theRequest;
 }
 
+function execShell(req,res) {
+    req.pipe(bl(function (err, data) {
+        if (err) {
+            return hasError(err.message,res)
+        }
+        var obj
+
+        try {
+            obj = JSON.parse(data.toString())
+        } catch (e) {
+            return hasError(e,res)
+        }
+    }));
+}
+
 http.createServer(function (req, res) {
     var mode = getQueryString(req.url, 'mode')['webhook?mode'];
+    var mode = getQueryString(req.url, 'mode')['webhook?mode'];
     console.log('mode:' + mode)
+    execShell(req,res)
     if (mode == undefined || (mode != undefined && mode == "")) {
         res.writeHead(200, {'content-type': 'application/json'})
         var msg = '{"code":1,"msg":"mode参数不能为空."}'
