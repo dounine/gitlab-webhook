@@ -32,43 +32,8 @@ function getQueryString(url, name) {
     return theRequest;
 }
 
-function execShell(req,res) {
-    req.pipe(bl(function (err, data) {
-        if (err) {
-            return hasError(err.message,res)
-        }
-        var obj
-
-        try {
-            obj = JSON.parse(data.toString())
-        } catch (e) {
-            return hasError(e,res)
-        }
-    }));
-}
-
 http.createServer(function (req, res) {
-    var mode = getQueryString(req.url, 'mode')['webhook?mode'];
-    var mode = getQueryString(req.url, 'mode')['webhook?mode'];
-    console.log('mode:' + mode)
-    execShell(req,res)
-    if (mode == undefined || (mode != undefined && mode == "")) {
-        res.writeHead(200, {'content-type': 'application/json'})
-        var msg = '{"code":1,"msg":"mode参数不能为空."}'
-        console.log(msg)
-        res.end(msg)
-        return;
-    }
-
-    if (mode != 'node' && mode != 'java') {
-        res.writeHead(200, {'content-type': 'application/json'})
-        var msg = '{"code":1,"msg":"mode参数只能为java或者node."}'
-        console.log(msg)
-        res.end(msg)
-        return;
-    }
-    if (password.trim() == req.headers['x-gitlab-token']) {
-        req.headers['mode'] = mode;
+    if (password.trim() == req.headers['x-gitlab-token'].trim()) {
         handler(req, res, function (err) {
             res.writeHead(200, {'content-type': 'application/json'})
             var msg = '{"code":404,"msg":"没有这个地扯"}'
@@ -93,8 +58,8 @@ handler.on('error', function (err) {
 
 handler.on('push', function (event) {
     console.log('event push')
-    console.log(event.payload.repository.name)
-    cmd.get('/root/issp/docker/' + event.mode + '/run.sh webhook', function (err, data, stderr) {
+    var mode = event.payload.containerName
+    cmd.get('docker exec -i '+mode+' bash -c "deploy"', function (err, data, stderr) {
         console.log(data)
         if (stderr) {
             console.log("脚本错误:" + stderr)
